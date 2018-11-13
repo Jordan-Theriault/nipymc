@@ -214,13 +214,13 @@ class BayesianModel(object):
                 random effect
             split_by (str): optional name of another variable on which to split
                 the target variable. A separate hyperparameter will be included
-                for each level in the split_by variable. E.g., if variable = 
+                for each level in the split_by variable. E.g., if variable =
                 'stimulus' and split_by = 'category', the model will include
                 one parameter for each individual stimulus, plus C additional
                 hyperparameters for the stimulus variances (one per category).
             yoke_random_mean (bool):
             estimate_random_mean (bool): If False (default), set mean of random
-                effect distribution to 0. If True, estimate mean parameters for 
+                effect distribution to 0. If True, estimate mean parameters for
                 each level of split_by (in which case the corresponding fixed
                 effect parameter should be omitted, for identifiability reasons).
                 If split_by=None, this is equivalent to estimating a fixed
@@ -235,7 +235,7 @@ class BayesianModel(object):
                 None (default), no scaling is done.
             trend (int): if variable is 'subject' or 'run', passing an int here
                 will result in addition of an Nth-order polynomial trend
-                instead of the expected intercept. E.g., when variable = 
+                instead of the expected intercept. E.g., when variable =
                 'run' and trend = 1, a linear trend will be added for each run.
             orthogonalize (list): list of variables to orthogonalize the target
                 variable with respect to. For now, this only works for
@@ -340,7 +340,7 @@ class BayesianModel(object):
                         mu = 0.
                     u = self._build_dist('u_' + label, dist, mu=mu, sd=sigma,
                                          shape=n_cols, **kwargs)
-                    self.mu += pm.dot(dm, u)
+                    self.mu += pm.math.dot(dm, u)
                 else:
                     # id_map is essentially a crosstab except each cell is either 0 or 1
                     id_map = self._get_membership_graph(variable, split_by)
@@ -361,7 +361,7 @@ class BayesianModel(object):
                         name, size = 'u_' + name, selected.shape[1]
                         u = self._build_dist(name, dist, mu=mu, sd=sigma,
                                              shape=size, **kwargs)
-                        self.mu += pm.dot(selected, u)
+                        self.mu += pm.math.dot(selected, u)
 
                         # Update the level map
                         levels = group_items[group_items].index.tolist()
@@ -374,7 +374,7 @@ class BayesianModel(object):
                 if split_by is not None:
                     dm = np.squeeze(dm)
                 if not withhold:
-                    self.mu += pm.dot(dm, b)
+                    self.mu += pm.math.dot(dm, b)
 
     def add_deterministic(self, label, expr):
         ''' Add a deterministic variable by evaling the passed expression. '''
@@ -410,7 +410,7 @@ class BayesianModel(object):
                     self.mu += _ar
 
                 sigma = pm.HalfCauchy('sigma_y_obs', beta=2)
-                y_obs = pm.Normal('Y_obs', mu=self.mu, sd=sigma, 
+                y_obs = pm.Normal('Y_obs', mu=self.mu, sd=sigma,
                                   observed=self.shared_params['y'])
         else:
             self.shared_params['y'].set_value(y_data)
