@@ -442,7 +442,8 @@ class BayesianModel(object):
             if scale == 'run':
                 scale = ['subject', 'run']
             y_grps = self.dataset.activation.groupby(scale)
-            y_data = y_grps[y].transform(standardize).values
+            zscore = lambda x: (x - x.mean()) / x.std()
+            y_data = y_grps[y].transform(zscore).values
         if detrend:
             y_grps = self.dataset.activation.loc[:, ['subject', 'run']]
             y_grps[y] = y_data
