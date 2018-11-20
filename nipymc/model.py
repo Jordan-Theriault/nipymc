@@ -452,7 +452,7 @@ class BayesianModel(object):
 
         self._setup_y(y_data, ar, by_run)
 
-    def run(self, samples=1000, find_map=True, verbose=True, step='nuts',
+    def run(self, samples=1000, tune=500, find_map=True, verbose=True, step='nuts',
             **kwargs):
         ''' Run the model.
         Args:
@@ -482,7 +482,7 @@ class BayesianModel(object):
                 }[step.lower()](**kwargs)
 
             self.start = start
-            trace = pm.sample(samples, start=start, step=step,
+            trace = pm.sample(samples, tune=tune, start=start, step=step,
                               progressbar=verbose, njobs=njobs, chain=chain)
             self.last_trace = trace  # for convenience
             return BayesianModelResults(trace)
